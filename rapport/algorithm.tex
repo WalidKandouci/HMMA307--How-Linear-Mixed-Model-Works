@@ -1,0 +1,86 @@
+\section*{Code Python}
+
+\begin{lstlisting}[language=Python]
+%matplotlib inline
+
+import numpy as np
+import pandas as pd
+import statsmodels.api as sm
+import statsmodels.formula.api as smf
+from statsmodels.tools.sm_exceptions import ConvergenceWarning
+import matplotlib.pyplot as plt
+from math import sqrt
+import seaborn as sns
+sns.set_palette("colorblind")
+
+data = pd.read_csv("C:\\Users\Walid\Documents\sleepstudy.csv")
+data.index = data[data.columns[0]]
+data = data[data.columns[1:4]]
+
+data.head(5)
+
+sns.violinplot(x="Days", y='Reaction', data=data)
+plt.savefig("figure.pdf") 
+
+sns.violinplot(x="Days", y='Subject', data=data)
+plt.savefig("figure2.pdf") 
+
+# plot the distribution of Reaction
+sns.distplot(data.Reaction)
+plt.savefig("figure3.pdf")
+plt.show()
+
+# plot the distribution of the days
+sns.distplot(data.Days, kde=False)
+plt.savefig("figure4.pdf") 
+plt.show()
+
+sns.lmplot(x = "Days", y = "Reaction", data = data)
+plt.savefig("figure5.pdf")
+
+# OLS
+modelOLS = smf.ols("Reaction ~ Days", data, groups=data["Subject"])
+resultOLS = modelOLS.fit()
+print(resultOLS.summary())
+
+# GLM
+modelGLM = smf.glm("Reaction ~ Days", data, groups=data["Subject"])
+resultGLM = modelGLM.fit()
+print(resultGLM.summary())
+
+# LMM
+modelLMM = smf.mixedlm("Reaction ~ Days", data, groups=data["Subject"])
+resultLMM = modelLMM.fit()
+print(resultLMM.summary())
+
+y = data.Reaction
+y_predict_LMM = resultLMM.fittedvalues
+RMSE_LMM = sqrt(((y-y_predict_LMM)**2).values.mean())
+results = pd.DataFrame()
+results["Method"] = ["LMM"]
+results["RMSE"] = RMSE_LMM
+
+y_predict_GLM = resultGLM.fittedvalues
+RMSE_GLM = sqrt(((y-y_predict_GLM)**2).values.mean())
+results.loc[1] = ["GLM",RMSE_GLM]
+
+y_predict_OLS = resultOLS.fittedvalues
+RMSE_OLS = sqrt(((y-y_predict_OLS)**2).values.mean())
+results.loc[2] = ["OLS",RMSE_OLS]
+
+results
+
+performance = pd.DataFrame()
+performance["residuals"] = resultLMM.resid.values
+performance["Days"] = data.Days
+performance["predicted"] = resultLMM.fittedvalues
+
+sns.lmplot(x = "predicted", y = "residuals", data = performance)
+
+ax = sns.residplot(x = "Days", y = "residuals", 
+     data = performance, lowess=True)
+ax.set(ylabel='Observed - Prediction')
+plt.show()
+
+
+\end{lstlisting}
