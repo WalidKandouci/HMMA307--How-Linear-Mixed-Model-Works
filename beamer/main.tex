@@ -1,0 +1,344 @@
+\documentclass[unknownkeysallowed]{beamer}
+\usepackage[french,english]{babel}
+\input{Beamer_js}
+\input{shortcuts_js}
+%\usepackage{./OrganizationFiles/tex/sty/shortcuts_js}
+\usepackage{csquotes}
+\graphicspath{{./images/}}
+
+\addbibresource{Bibliographie.bib}
+\usepackage{enumerate}
+
+\usepackage[T1]{fontenc}
+\usepackage[utf8x]{inputenc}
+%\usepackage{dsfont}
+%\usepackage{bbold}
+%\usepackage{stmaryrd}
+%\languagepath{French}
+%\usepackage{xcolor}
+%\usepackage{pgf}
+%\usepackage{tikz}
+
+
+
+\usepackage[procnames]{listings}
+% \usepackage{setspace} % need for \setstretch{1}
+\lstset{%
+language   = python,%
+ % basicstyle = \ttfamily\setstretch{1},%
+basicstyle = \ttfamily,%
+columns    = flexible,%
+keywordstyle=\color{javared},
+firstnumber=100,
+frame=shadowbox,
+showstringspaces=false,
+morekeywords={import,from,class,def,for,while,if,is,in,elif,
+else,not,and,or,print,break,continue,return,True,False,None,access,
+as,del,except,exec,finally,global,import,lambda,pass,print,raise,try,assert,!=},
+keywordstyle={\color{javared}\bfseries},
+commentstyle=\color{javagreen}, %vsomb_col white comments
+morecomment=[s][\color{javagreen}]{"""}{"""},
+upquote=true,
+%% style for number
+numbers=none,
+resetmargins=true,
+xleftmargin=10pt,
+linewidth= \linewidth,
+numberstyle=\tiny,
+stepnumber=1,
+numbersep=8pt, %
+frame=shadowbox,
+rulesepcolor=\color{black},
+procnamekeys={def,class},
+procnamestyle=\color{oneblue}\textbf,
+literate={á}{{\'a}}1
+{à}{{\`a }}1
+{ã}{{\~a}}1
+{é}{{\'e}}1
+{ê}{{\^e}}1
+{è}{{\`e}}1
+{í}{{\'i}}1
+{î}{{\^i}}1
+{ó}{{\'o}}1
+{õ}{{\~o}}1
+{ô}{{\^o}}1
+{ú}{{\'u}}1
+{ü}{{\"u}}1
+{ç}{{\c{c}}}1
+}
+
+
+
+
+
+
+
+
+
+
+\begin{document}
+
+
+\begin{frame}[noframenumbering]
+\thispagestyle{empty}
+\bigskip
+\bigskip
+\begin{center}{
+\LARGE\color{marron}
+\textbf{Les Modèles Linéaires Mixtes}
+\textbf{ }\\
+\vspace{0.5cm}
+}
+
+\color{marron}
+\textbf{HMMA 307 : Modèles Linéaires Avancés}
+\end{center}
+
+\vspace{0.5cm}
+
+\begin{center}
+\textbf{KANDOUCI Walid} \\
+\vspace{0.1cm}
+\url{https://github.com/WalidKandouci/HMMA307--How-Linear-Mixed-Model-Works.git}\\
+\vspace{0.5cm}
+Université de Montpellier \\
+\end{center}
+
+\centering
+\includegraphics[width=0.13\textwidth]{Logo.pdf}
+\end{frame}
+
+
+
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%             Headers               %%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+% plan de la présentation
+\begin{frame}
+\frametitle{Sommaire}
+\tableofcontents
+\end{frame}
+
+
+\section{Introduction}
+\begin{frame}
+\frametitle{Introduction}
+\begin{itemize}
+    \item \textbf{Modèles mixtes:} des modèles comportant à la fois des facteurs à effets fixes (ces effets entrant dans la définition de la moyenne du modèle) et des facteurs à effets aléatoires (ces effets entrant, quant à eux, dans la définition de la variance du modèle)
+\end{itemize}
+    $$y=X \beta+Zu+\epsilon$$
+    \begin{itemize}
+    \item[$\bullet$] $X$: Matrice $(N\times p)$ 
+    \item[$\bullet$] $\beta$: Les coefficients de régression pour chaque variable indépendante du modèle
+    \item[$\bullet$] $epsilon$: Contient les erreurs (résidus) du modèle
+    \item[$\bullet$] $Z$: Matrice qui contient les valeurs observées pour chaque individu $N$ pour chaque covariable q des effets aléatoires.
+    \item[$\bullet$] $u$ est un vecteur $(q\times 1)$ qui contient les effets aléatoires des $q$ covariables de $Z$
+
+\end{itemize}
+\end{frame}
+
+
+
+
+
+
+\section{Exemple: sleepstudy}
+
+\begin{frame}
+\frametitle{Exemple: sleepstudy}
+\begin{center}
+\begin{tabular}{ c c c c }
+\hline
+ & Reaction & Days & Subject \\
+\hline
+1 & 249.5600 & 0 & 308 \\
+2 & 258.7047 & 1 & 308 \\
+3 & 250.8006 & 2 & 308 \\
+4 & 321.4398 & 3 & 308 \\
+5 & 356.8519 & 4 & 308 \\
+\hline
+\end{tabular}
+\end{center}
+ \begin{itemize}
+     \item \textbf{180 individus $\times$ 3 variables}
+     \item[$\bullet$] \textbf{Reaction:} Temps de réaction en moyenne (en milisecondes)
+    \item[$\bullet$] \textbf{Days:} Nombre de jours de privation de sommeil
+    \item[$\bullet$] \textbf{Subject:} Numéro du sujet sur lequel l'observation a été faite.
+ \end{itemize}
+
+\end{frame}
+
+
+\begin{frame}{Nos variables "Reactions" et "Days"}
+    \begin{figure}[H]
+\centering
+\begin{subfigure}{.5\textwidth}
+  \centering
+  \includegraphics[width=1\linewidth]{Images/figure3.pdf}
+  \caption{Distribution des réactions}
+\end{subfigure}%
+\begin{subfigure}{.5\textwidth}
+  \centering
+  \includegraphics[width=1\linewidth]{Images/figure4.pdf}
+  \caption{Distribution des jours}
+\end{subfigure}
+\caption{Analyse de nos variables "Reaction" et "Days"}
+\end{figure}
+   \begin{itemize}
+     \item \textbf{Reaction:} Temps de réaction en moyenne (en milisecondes)
+    \item \textbf{Days:} Nombre de jours de privation de sommeil
+ \end{itemize}
+\end{frame}
+
+\begin{frame}{Évolution du temps de réaction en fonctiondes jours}
+    \begin{figure}[H]
+    \centering
+    \includegraphics[width=10cm, height=5cm]{Images/figure.pdf}
+    \caption{violins-plots de nos données, jours /réactions.}
+\end{figure}
+    \begin{itemize}
+     \item Le temps réaction par rapport aux jours a une tendance à la hausse avec des variations entre les jours et les individus.
+    
+ \end{itemize}
+\end{frame}
+
+\begin{frame}{Évolution du temps de réaction en fonction des jours}
+    \begin{figure}[H]
+    \centering
+    \includegraphics[width=7.5cm, height=5cm]{Images/figure5.pdf}
+    \caption{Représentation du temps de réaction en fonctions des jours}
+\end{figure}
+\begin{itemize}
+     \item Le temps réaction par rapport aux jours a une tendance à la hausse avec des variations entre les jours et les individus.
+ \end{itemize}
+\end{frame}
+
+\section{Application}
+\begin{frame}{Application}
+   \begin{itemize}
+       \item Nous allons implémenter maintenant les méthodes \textbf{MML}, \textbf{OLS} et \textbf{GLM}
+       \item  Nous allons comparer leurs erreur quadratique moyenne \textbf{(RMSE)}
+       \item Analayser le résultat obtenue grace a la méthode \textbf{MML}
+   \end{itemize}
+\end{frame}
+
+
+\begin{frame}[fragile]{Application}
+
+\begin{lstlisting}[language=Python]
+# OLS
+modelOLS = smf.ols("Reaction ~ Days", 
+                  data, groups=data["Subject"])
+resultOLS = modelOLS.fit()
+print(resultOLS.summary())
+# GLM
+modelGLM = smf.glm("Reaction ~ Days", 
+                  data, groups=data["Subject"])
+resultGLM = modelGLM.fit()
+print(resultGLM.summary())
+#LMM
+md = smf.mixedlm("Reaction ~ Days", 
+                data, groups=data["Subject"])
+mdf = md.fit()
+print(mdf.summary())
+\end{lstlisting}
+
+\end{frame}
+
+
+\begin{frame}{Application}
+\begin{center}
+\begin{tabular}{ c c c c }
+\multicolumn{4}{c}{OLS Regression Results} \\
+\end{tabular}
+\begin{tabular}{ c c c c c c }
+ & Coef. & Std.Err. & z & $P>|z|$  & $[0.025  0.975]$\\
+\hline
+Intercept & 251.4051 & 6.610 & 38.033 & 0.000 & 238.361  264.449\\
+Days & 10.4673 & 1.238 & 8.454 & 0.000 & 8.024  12.911\\
+\hline
+\end{tabular}
+\end{center}
+\begin{center}
+\begin{tabular}{ c c c c }
+\multicolumn{4}{c}{Generalized Linear Model Regression Results} \\
+\end{tabular}
+\begin{tabular}{ c c c c c c }
+ & Coef. & Std.Err. & z & $P>|z|$  & $[0.025  0.975]$\\
+\hline
+Intercept & 251.4051 & 6.610 & 38.033 & 0.000 & 238.449  264.361\\
+Days & 10.4673 & 1.238 & 8.454 & 0.000 & 8.040  12.894\\
+\hline
+\end{tabular}
+\end{center}
+
+
+\begin{center}
+\begin{tabular}{ c c c c }
+\multicolumn{4}{c}{Mixed Linear Model Regression Results} \\
+\end{tabular}
+\begin{tabular}{ c c c c c c }
+ & Coef. & Std.Err. & z & $P>|z|$  & $[0.025  0.975]$\\
+\hline
+Intercept & 251.405 & 9.747 & 25.794 & 0.000 & 232.302 270.508\\
+Days & 10.467 & 0.804 & 13.015 & 0.000 & 8.891  12.044\\
+Group Var & 1378.176 & 17.156 & & & \\
+\hline
+\end{tabular}
+\end{center}
+\end{frame}
+
+
+
+
+
+\begin{frame}{Comparaison des RMSE}
+$$ RMSE=\sqrt{\sum_{i=1}^{n} \frac{\left(\hat{y}_{i}-y_{i}\right)^{2}}{n}} $$
+
+\begin{center}
+\begin{tabular}{ c c }
+\hline
+Method & RMSE\\
+\hline
+LMM	& 29.410624\\
+GLM	& 47.448898\\
+OLS	& 47.448898\\
+\hline
+\end{tabular}
+\end{center}
+
+\begin{itemize}
+    \item On remarque que l'erreur quadratique moyenne du \textbf{MML} est la plus petite.
+\end{itemize}
+\end{frame}
+
+
+
+\begin{frame}{LMM Résultat}
+     \begin{figure}[H]
+    \centering
+    \includegraphics[width=7.5cm, height=5cm]{Images/figure6.pdf}
+    \caption{Représentation du temps de réaction en fonctions des jours}
+    \end{figure}
+\begin{itemize}
+    \item Le temps de réactions étant mieux répartis en fonction des jours.
+\end{itemize}
+\end{frame}
+
+\section{Conclusion}
+\begin{frame}{Conclusion}
+\begin{itemize}
+    \item Les modèles linéaires mixtes sont utilisé pour tenir compte de la non-indépendance des données
+    \item le modèle fourni généralement un meilleur ajustement et expliquent plus de variation dans les données.
+\newpage
+    
+\end{itemize}
+\end{frame}
+
+\end{document}
+
